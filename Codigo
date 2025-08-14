@@ -1,0 +1,92 @@
+# minprimera red neuronal :D
+#librerias a usar se usa el tensorflow libreria de google pra IA
+#-------------------------------------------------------------------
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+#--------------------------------------------------------------------
+
+#datos a entreenar la "IA"
+#--------------------------------------------------------------------------------------------------------------------------------
+celsius = np.array([-5000, -40, -10, 0, 8, 15, 22, 40, 50, 100, 300, 600, 1200, 5000], dtype=float) #14 datos a entrenar        |
+#                                                                                                                               |
+fahrenheit = np.array([-8968,-40, 14, 32, 46, 59, 72, 104, 122, 212, 572, 1112, 2192, 9032 ], dtype=float) #14 datos a entrenar |
+#--------------------------------------------------------------------------------------------------------------------------------
+
+# Creacion de las capas (neuronas) dponde sucede la magia de entrenar
+#--------------------------------------------------------------
+oculta1 = tf.keras.layers.Dense(units=3, input_shape=[1])
+oculta2 = tf.keras.layers.Dense(units=3)
+salida = tf.keras.layers.Dense(units=1)
+modelo = tf.keras.Sequential([oculta1, oculta2, salida])
+#--------------------------------------------------------------
+
+# Compilación del modelo
+#---------------------------------------------------------------
+modelo.compile(
+    optimizer=tf.keras.optimizers.Adam(0.1),
+    loss='mean_squared_error'
+)
+#----------------------------------------------------------------
+
+# Entrenamiento
+#-----------------------------------------------------------------------
+print("\nEstamos trabajando para el mejor resultado :D")
+historial = modelo.fit(celsius, fahrenheit, epochs=10000, verbose=False)
+print("Ya entramos, ya estamos ready pa lo q sea")
+#---------------------------------------------- --------------------------
+
+# perdidas durante el entrenamiento en grafica
+#-----------------------------------------------------------------------------
+plt.plot(historial.history['loss'])
+plt.xlabel('Epocas')
+plt.ylabel('Perdidas')
+plt.title('Proceso de entrenamiento')
+plt.show()
+#----------------------------------------------------------------------------
+
+# Predicciones corregidas
+#-------------------------------------------------------------------------------------
+#valores_prueba = np.array([35, 200, -48, 1300]).reshape(-1, 1)
+#print("\nPredicciones:")
+#predicciones = modelo.predict(valores_prueba)
+
+#for i, c in enumerate(valores_prueba.flatten()):
+  # print(f"{c}°C = {predicciones[i][0]:.2f}°F (Valor real: {(c * 9/5) + 32:.2f}°F)")
+#----------------------------------------------------------------------------------------
+
+# Coeficientes aprendidos (visualización de la primera capa)
+print("\nformula aprendida por la red (aproximada):")
+pesos = modelo.layers[0].get_weights()[0]
+biases = modelo.layers[0].get_weights()[1]
+print(f"Pesos capa 1: {pesos.flatten()}")
+print(f"Bias capa 1: {biases}")
+#-----------------------------------------------------------------------------------------
+
+# Guardar el modelo
+modelo.save('celsius_a_fahrenheit.keras')
+print("\nModelo guardado como 'celsius_a_fahrenheit.keras'")
+#----------------------------------------------------------------------------------------------
+
+#menu para erl usuario :D
+
+print("\n " + "*"*50)
+
+print("\n PROGRAMA ENTRENADO PARA CALCULAR TEMPERATURA \n MARGEN DE ERROR DEL 1%")
+
+print("\n "  + "*"*50)
+
+# Menú para el usuario :D
+while True:
+    entrada = input("\nIngresa la temperatura en Celsius para pasarla a Fahrenheit (o escribe 'salir'): ").strip().lower()
+
+    if entrada == 'salir':
+        print("¡Gracias por usarnos! :3")
+        break
+
+    try:
+        c = float(entrada)
+        pred = modelo.predict(np.array([[c]]), verbose=0)[0][0]
+        print(f"{c}°C = {pred:.2f}°F (Valor real: {(c * 9/5) + 32:.2f}°F)")
+    except ValueError:
+        print("Por favor, ingresa un número válido >:( )")
